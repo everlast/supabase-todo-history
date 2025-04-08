@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import LoginForm from './LoginForm';
 import SignUpForm from './SignUpForm';
 import ResetPasswordForm from './ResetPasswordForm';
@@ -57,12 +58,17 @@ const AuthContainer = () => {
     }
   };
   
-  // 既にログインしている場合のメッセージ
+  // 既にログインしている場合のメッセージとトップページへのリンク
   if (user) {
     return (
       <div className="auth-form-container">
         <h2>ログイン済み</h2>
         <p>すでにログインしています。</p>
+        <div className="auth-actions">
+          <Link to="/" className="primary-button">
+            TODOリストへ移動
+          </Link>
+        </div>
       </div>
     );
   }
