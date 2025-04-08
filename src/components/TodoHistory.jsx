@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/TodoHistory.css';
 
-function TodoHistory({ history, selectedTodoId, onShowAllHistory }) {
+function TodoHistory({ history, categories, selectedTodoId, onShowAllHistory }) {
   // 期限日をフォーマット
   const formatDueDate = (dateString) => {
     if (!dateString) return 'なし';
@@ -26,6 +26,15 @@ function TodoHistory({ history, selectedTodoId, onShowAllHistory }) {
     }
   };
 
+  // カテゴリIDからカテゴリ名を取得
+  const getCategoryName = (categoryId) => {
+    if (!categoryId) return 'なし';
+    if (!categories) return 'カテゴリID: ' + categoryId;
+    
+    const category = categories.find(c => c.id === categoryId);
+    return category ? category.name : 'カテゴリID: ' + categoryId;
+  };
+
   // 履歴の詳細を表示するヘルパー関数
   const renderHistoryDetails = (item) => {
     const { action, details } = item;
@@ -36,6 +45,10 @@ function TodoHistory({ history, selectedTodoId, onShowAllHistory }) {
           <p><strong>タイトル:</strong> {details.title}</p>
           {details.description && <p><strong>説明:</strong> {details.description}</p>}
           <p><strong>期限日:</strong> {details.due_date ? formatDueDate(details.due_date) : 'なし'}</p>
+          <p><strong>カテゴリ:</strong> {getCategoryName(details.category_id)}</p>
+          {details.tags && details.tags.length > 0 && (
+            <p><strong>タグ:</strong> {details.tags.join(', ')}</p>
+          )}
         </div>
       );
     }
@@ -59,6 +72,41 @@ function TodoHistory({ history, selectedTodoId, onShowAllHistory }) {
             <p><strong>説明:</strong></p>
             <p className="old">変更前: {details.previous.description || '(なし)'}</p>
             <p className="new">変更後: {details.current.description || '(なし)'}</p>
+          </div>
+        );
+      }
+      
+      if (details.previous.due_date !== details.current.due_date) {
+        changes.push(
+          <div key="due-date-change">
+            <p><strong>期限日:</strong></p>
+            <p className="old">変更前: {details.previous.due_date ? formatDueDate(details.previous.due_date) : 'なし'}</p>
+            <p className="new">変更後: {details.current.due_date ? formatDueDate(details.current.due_date) : 'なし'}</p>
+          </div>
+        );
+      }
+      
+      // カテゴリの変更を表示
+      if (details.previous.category_id !== details.current.category_id) {
+        changes.push(
+          <div key="category-change">
+            <p><strong>カテゴリ:</strong></p>
+            <p className="old">変更前: {getCategoryName(details.previous.category_id)}</p>
+            <p className="new">変更後: {getCategoryName(details.current.category_id)}</p>
+          </div>
+        );
+      }
+      
+      // タグの変更を表示
+      const prevTags = details.previous.tags || [];
+      const currTags = details.current.tags || [];
+      
+      if (JSON.stringify(prevTags) !== JSON.stringify(currTags)) {
+        changes.push(
+          <div key="tags-change">
+            <p><strong>タグ:</strong></p>
+            <p className="old">変更前: {prevTags.length > 0 ? prevTags.join(', ') : '(なし)'}</p>
+            <p className="new">変更後: {currTags.length > 0 ? currTags.join(', ') : '(なし)'}</p>
           </div>
         );
       }
