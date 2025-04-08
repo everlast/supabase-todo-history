@@ -13,7 +13,8 @@
 }
 
 .todo-form input,
-.todo-form textarea {
+.todo-form textarea,
+.todo-form select {
   padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
@@ -44,6 +45,38 @@
   cursor: not-allowed;
 }
 
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.form-column {
+  flex: 1;
+}
+
+.form-section {
+  margin-top: 10px;
+}
+
+.form-section label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.date-input-container label,
+.category-select-container label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.category-select {
+  background-color: white;
+}
+
 @media (max-width: 600px) {
   .todo-form {
     flex-direction: column;
@@ -51,5 +84,9 @@
   
   .todo-form button {
     align-self: flex-end;
+  }
+  
+  .form-row {
+    flex-direction: column;
   }
 }
