@@ -2,6 +2,18 @@ import React from 'react';
 import '../styles/TodoHistory.css';
 
 function TodoHistory({ history, selectedTodoId, onShowAllHistory }) {
+  // 期限日をフォーマット
+  const formatDueDate = (dateString) => {
+    if (!dateString) return 'なし';
+    
+    return new Date(dateString).toLocaleDateString('ja-JP', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      weekday: 'short'
+    });
+  };
+
   // 履歴アクションに応じた表示テキストを取得
   const getActionText = (action) => {
     switch (action) {
@@ -9,6 +21,7 @@ function TodoHistory({ history, selectedTodoId, onShowAllHistory }) {
       case 'updated': return '更新';
       case 'completed': return '完了';
       case 'reopened': return '再開';
+      case 'due_date_changed': return '期限日変更';
       default: return action;
     }
   };
@@ -22,6 +35,7 @@ function TodoHistory({ history, selectedTodoId, onShowAllHistory }) {
         <div className="history-details">
           <p><strong>タイトル:</strong> {details.title}</p>
           {details.description && <p><strong>説明:</strong> {details.description}</p>}
+          <p><strong>期限日:</strong> {details.due_date ? formatDueDate(details.due_date) : 'なし'}</p>
         </div>
       );
     }
@@ -50,6 +64,16 @@ function TodoHistory({ history, selectedTodoId, onShowAllHistory }) {
       }
       
       return <div className="history-details">{changes}</div>;
+    }
+    
+    if (action === 'due_date_changed') {
+      return (
+        <div className="history-details">
+          <p><strong>期限日:</strong></p>
+          <p className="old">変更前: {details.previous.due_date ? formatDueDate(details.previous.due_date) : 'なし'}</p>
+          <p className="new">変更後: {details.current.due_date ? formatDueDate(details.current.due_date) : 'なし'}</p>
+        </div>
+      );
     }
     
     return null;
