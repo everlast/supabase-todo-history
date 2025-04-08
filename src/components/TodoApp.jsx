@@ -202,6 +202,11 @@ function TodoApp() {
     setSelectedCategoryId(categoryId);
   };
 
+  // カテゴリリストの更新処理
+  const handleCategoryUpdated = (updatedCategories) => {
+    setCategories(updatedCategories);
+  };
+
   // タグの処理
   const handleAddTag = async (todoId, tag) => {
     try {
@@ -385,6 +390,7 @@ function TodoApp() {
           <TodoForm 
             onAddTodo={handleAddTodo} 
             categories={categories}
+            onCategoryUpdated={handleCategoryUpdated}
           />
           
           {loading ? (
@@ -403,6 +409,7 @@ function TodoApp() {
               incompleteTodoCount={getIncompleteTodoCount()}
               totalIncompleteTodoCount={getAllIncompleteTodoCount()}
               isFiltered={!!selectedCategoryId || !!filterTag}
+              onCategoryUpdated={handleCategoryUpdated}
             />
           )}
         </>

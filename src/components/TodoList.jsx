@@ -14,12 +14,20 @@ function TodoList({
   onFilterByTag,
   incompleteTodoCount,
   totalIncompleteTodoCount,
-  isFiltered
+  isFiltered,
+  onCategoryUpdated
 }) {
   // タグをクリックしたときの処理
   const handleTagClick = (e, tag) => {
     e.stopPropagation(); // イベントの伝播を防止
     onFilterByTag(tag);
+  };
+
+  // カテゴリが更新されたときの処理
+  const handleCategoryUpdated = (updatedCategories) => {
+    if (onCategoryUpdated) {
+      onCategoryUpdated(updatedCategories);
+    }
   };
 
   return (
@@ -54,6 +62,7 @@ function TodoList({
                 onAddTag={onAddTag}
                 onRemoveTag={onRemoveTag}
                 onTagClick={handleTagClick}
+                onCategoryUpdated={handleCategoryUpdated}
               />
             </div>
           ))

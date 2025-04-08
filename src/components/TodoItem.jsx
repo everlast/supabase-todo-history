@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import TagInput from './TagInput';
+import { CategoryService } from '../services/CategoryService';
 import '../styles/TodoItem.css';
 
 function TodoItem({ 
@@ -11,7 +12,8 @@ function TodoItem({
   onViewHistory,
   onAddTag,
   onRemoveTag,
-  onTagClick 
+  onTagClick,
+  onCategoryUpdated
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
@@ -19,6 +21,16 @@ function TodoItem({
   const [editDueDate, setEditDueDate] = useState(todo.due_date ? new Date(todo.due_date).toISOString().split('T')[0] : '');
   const [editCategory, setEditCategory] = useState(todo.category_id);
   const [editTags, setEditTags] = useState(todo.tags || []);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryColor, setNewCategoryColor] = useState('#3498db');
+  const [categoryError, setCategoryError] = useState('');
+  const [localCategories, setLocalCategories] = useState(categories || []);
+
+  // 親コンポーネントからcategoriesプロップが更新されたら、ローカルの状態も更新
+  React.useEffect(() => {
+    setLocalCategories(categories || []);
+  }, [categories]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -31,6 +43,45 @@ function TodoItem({
         tags: editTags
       });
       setIsEditing(false);
+    }
+  };
+
+  // 新しいカテゴリを追加する関数
+  const handleAddCategory = async (e) => {
+    e.preventDefault();
+    
+    if (!newCategoryName.trim()) {
+      setCategoryError('カテゴリ名を入力してください');
+      return;
+    }
+    
+    try {
+      setCategoryError('');
+      // CategoryServiceを使って新しいカテゴリを追加
+      const newCategory = await CategoryService.createCategory(
+        newCategoryName.trim(), 
+        newCategoryColor
+      );
+      
+      // ローカルのカテゴリリストに新しいカテゴリを追加
+      const updatedCategories = [...localCategories, newCategory];
+      setLocalCategories(updatedCategories);
+      
+      // 追加したカテゴリを選択
+      setEditCategory(newCategory.id);
+      
+      // フォームをリセット
+      setNewCategoryName('');
+      setNewCategoryColor('#3498db');
+      setIsAddingCategory(false);
+      
+      // 親コンポーネントに新しいカテゴリが追加されたことを通知
+      if (onCategoryUpdated) {
+        onCategoryUpdated(updatedCategories);
+      }
+    } catch (error) {
+      console.error('カテゴリの追加に失敗しました:', error);
+      setCategoryError('カテゴリの追加に失敗しました。再度お試しください。');
     }
   };
 
@@ -173,19 +224,69 @@ function TodoItem({
             <div className="form-column">
               <div className="category-select-container">
                 <label htmlFor="editCategory">カテゴリ（任意）:</label>
-                <select
-                  id="editCategory"
-                  value={editCategory || ''}
-                  onChange={(e) => setEditCategory(e.target.value === '' ? null : e.target.value)}
-                  className="category-select"
-                >
-                  <option value="">カテゴリなし</option>
-                  {categories && categories.map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="category-select-wrapper">
+                  <select
+                    id="editCategory"
+                    value={editCategory || ''}
+                    onChange={(e) => setEditCategory(e.target.value === '' ? null : e.target.value)}
+                    className="category-select"
+                  >
+                    <option value="">カテゴリなし</option>
+                    {localCategories.map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button 
+                    type="button" 
+                    className="add-category-button"
+                    onClick={() => setIsAddingCategory(!isAddingCategory)}
+                  >
+                    +
+                  </button>
+                </div>
+                
+                {isAddingCategory && (
+                  <div className="add-category-form">
+                    <div className="add-category-inputs">
+                      <input
+                        type="text"
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        placeholder="新しいカテゴリ名"
+                        className="category-name-input"
+                      />
+                      <input
+                        type="color"
+                        value={newCategoryColor}
+                        onChange={(e) => setNewCategoryColor(e.target.value)}
+                        className="color-picker"
+                      />
+                    </div>
+                    {categoryError && <div className="category-error">{categoryError}</div>}
+                    <div className="category-actions">
+                      <button 
+                        type="button" 
+                        onClick={handleAddCategory}
+                        className="save-category-button"
+                      >
+                        追加
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          setIsAddingCategory(false);
+                          setNewCategoryName('');
+                          setCategoryError('');
+                        }}
+                        className="cancel-category-button"
+                      >
+                        キャンセル
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
