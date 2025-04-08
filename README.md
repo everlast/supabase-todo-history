@@ -20,6 +20,13 @@ SupabaseとReactを使用したTODOアプリケーションです。タスク管
   - 履歴の閲覧（全体または特定のタスク）
   - レスポンシブデザイン
 
+- **期限日管理と通知機能** (New!)
+  - タスクに期限日を設定
+  - 期限切れタスクの視覚的通知
+  - 期限が近いタスクの警告
+  - 期限日の変更履歴追跡
+  - 通知パネルでの期限切れ・期限近いタスクの一覧表示
+
 ## スクリーンショット
 
 ※アプリケーションの実行時に追加予定
@@ -65,6 +72,7 @@ CREATE TABLE todos (
   title TEXT NOT NULL,
   description TEXT,
   is_completed BOOLEAN DEFAULT FALSE,
+  due_date TIMESTAMP WITH TIME ZONE DEFAULT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, now()),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, now()),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL
@@ -76,7 +84,7 @@ CREATE TABLE todos (
 CREATE TABLE todo_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   todo_id UUID NOT NULL REFERENCES todos(id) ON DELETE CASCADE,
-  action TEXT NOT NULL, -- 'created', 'updated', 'completed', 'reopened'
+  action TEXT NOT NULL, -- 'created', 'updated', 'completed', 'reopened', 'due_date_changed'
   details JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, now())
 );
@@ -107,7 +115,12 @@ DECLARE
   action_type TEXT;
   details_json JSONB;
 BEGIN
-  details_json = jsonb_build_object('title', NEW.title, 'description', NEW.description);
+  -- 基本的な詳細情報を構築
+  details_json = jsonb_build_object(
+    'title', NEW.title, 
+    'description', NEW.description,
+    'due_date', NEW.due_date
+  );
   
   IF TG_OP = 'INSERT' THEN
     action_type := 'created';
@@ -119,6 +132,9 @@ BEGIN
       ELSE
         action_type := 'reopened';
       END IF;
+    -- 期限日が変更された場合
+    ELSIF OLD.due_date IS DISTINCT FROM NEW.due_date THEN
+      action_type := 'due_date_changed';
     ELSE
       action_type := 'updated';
     END IF;
@@ -128,12 +144,14 @@ BEGIN
       'previous', jsonb_build_object(
         'title', OLD.title, 
         'description', OLD.description,
-        'is_completed', OLD.is_completed
+        'is_completed', OLD.is_completed,
+        'due_date', OLD.due_date
       ),
       'current', jsonb_build_object(
         'title', NEW.title, 
         'description', NEW.description,
-        'is_completed', NEW.is_completed
+        'is_completed', NEW.is_completed,
+        'due_date', NEW.due_date
       )
     );
   END IF;
@@ -221,7 +239,7 @@ npm run build
 
 - **機能の拡張**
   - タスクのカテゴリ分類やタグ付け
-  - 期限日設定と通知機能
+  - ✅ 期限日設定と通知機能
   - 優先度の設定
   - ファイル添付機能
 
