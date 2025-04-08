@@ -1,11 +1,24 @@
 import React, { useState } from 'react';
+import TagInput from './TagInput';
 import '../styles/TodoItem.css';
 
-function TodoItem({ todo, onToggleComplete, onDeleteTodo, onEditTodo, onViewHistory }) {
+function TodoItem({ 
+  todo, 
+  categories, 
+  onToggleComplete, 
+  onDeleteTodo, 
+  onEditTodo, 
+  onViewHistory,
+  onAddTag,
+  onRemoveTag,
+  onTagClick 
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
   const [editDescription, setEditDescription] = useState(todo.description || '');
   const [editDueDate, setEditDueDate] = useState(todo.due_date ? new Date(todo.due_date).toISOString().split('T')[0] : '');
+  const [editCategory, setEditCategory] = useState(todo.category_id);
+  const [editTags, setEditTags] = useState(todo.tags || []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -13,7 +26,9 @@ function TodoItem({ todo, onToggleComplete, onDeleteTodo, onEditTodo, onViewHist
       onEditTodo(todo.id, { 
         title: editTitle.trim(),
         description: editDescription.trim(),
-        due_date: editDueDate ? new Date(editDueDate).toISOString() : null
+        due_date: editDueDate ? new Date(editDueDate).toISOString() : null,
+        category_id: editCategory,
+        tags: editTags
       });
       setIsEditing(false);
     }
@@ -53,10 +68,37 @@ function TodoItem({ todo, onToggleComplete, onDeleteTodo, onEditTodo, onViewHist
     return 'normal';
   };
 
+  // タグを追加
+  const handleAddTag = (tag) => {
+    if (!editTags.includes(tag)) {
+      const newTags = [...editTags, tag];
+      setEditTags(newTags);
+      
+      if (!isEditing) {
+        onAddTag(todo.id, tag);
+      }
+    }
+  };
+
+  // タグを削除
+  const handleRemoveTag = (tag) => {
+    const newTags = editTags.filter(t => t !== tag);
+    setEditTags(newTags);
+    
+    if (!isEditing) {
+      onRemoveTag(todo.id, tag);
+    }
+  };
+
   // 今日の日付をYYYY-MM-DD形式で取得（日付入力フィールドのmin属性に使用）
   const today = new Date().toISOString().split('T')[0];
   
   const dueDateStatus = getDueDateStatus();
+
+  // 現在のカテゴリ情報を取得
+  const currentCategory = categories && todo.category_id 
+    ? categories.find(c => c.id === todo.category_id) 
+    : null;
 
   return (
     <div className={`todo-item ${todo.is_completed ? 'completed' : ''} ${dueDateStatus ? `due-${dueDateStatus}` : ''}`}>
@@ -73,25 +115,59 @@ function TodoItem({ todo, onToggleComplete, onDeleteTodo, onEditTodo, onViewHist
             onChange={(e) => setEditDescription(e.target.value)}
             placeholder="説明（任意）"
           />
-          <div className="date-input-container">
-            <label htmlFor="editDueDate">期限日（任意）:</label>
-            <input
-              type="date"
-              id="editDueDate"
-              value={editDueDate}
-              min={today}
-              onChange={(e) => setEditDueDate(e.target.value)}
-            />
-            {editDueDate && (
-              <button 
-                type="button" 
-                className="clear-date-btn"
-                onClick={() => setEditDueDate('')}
-              >
-                クリア
-              </button>
-            )}
+          
+          <div className="form-row">
+            <div className="form-column">
+              <div className="date-input-container">
+                <label htmlFor="editDueDate">期限日（任意）:</label>
+                <input
+                  type="date"
+                  id="editDueDate"
+                  value={editDueDate}
+                  min={today}
+                  onChange={(e) => setEditDueDate(e.target.value)}
+                />
+                {editDueDate && (
+                  <button 
+                    type="button" 
+                    className="clear-date-btn"
+                    onClick={() => setEditDueDate('')}
+                  >
+                    クリア
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            <div className="form-column">
+              <div className="category-select-container">
+                <label htmlFor="editCategory">カテゴリ（任意）:</label>
+                <select
+                  id="editCategory"
+                  value={editCategory || ''}
+                  onChange={(e) => setEditCategory(e.target.value === '' ? null : e.target.value)}
+                  className="category-select"
+                >
+                  <option value="">カテゴリなし</option>
+                  {categories && categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
+          
+          <div className="form-section">
+            <label>タグ（Enterで追加）:</label>
+            <TagInput
+              tags={editTags}
+              onAddTag={handleAddTag}
+              onRemoveTag={handleRemoveTag}
+            />
+          </div>
+          
           <div className="actions">
             <button type="submit" disabled={!editTitle.trim()}>保存</button>
             <button type="button" onClick={() => setIsEditing(false)}>キャンセル</button>
@@ -108,6 +184,34 @@ function TodoItem({ todo, onToggleComplete, onDeleteTodo, onEditTodo, onViewHist
             <div className="todo-text">
               <h3>{todo.title}</h3>
               {todo.description && <p>{todo.description}</p>}
+              
+              {currentCategory && (
+                <div className="todo-category">
+                  <span
+                    className="category-badge"
+                    style={{
+                      backgroundColor: currentCategory.color || '#3498db'
+                    }}
+                  >
+                    {currentCategory.name}
+                  </span>
+                </div>
+              )}
+              
+              {todo.tags && todo.tags.length > 0 && (
+                <div className="todo-tags">
+                  {todo.tags.map((tag, index) => (
+                    <span 
+                      key={index} 
+                      className="tag-badge"
+                      onClick={(e) => onTagClick && onTagClick(e, tag)}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              
               <div className="todo-meta">
                 <span className="date">作成: {new Date(todo.created_at).toLocaleString()}</span>
                 {todo.updated_at !== todo.created_at && (
