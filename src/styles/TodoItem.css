@@ -50,6 +50,42 @@
   margin-bottom: 10px;
 }
 
+.todo-category {
+  margin-top: 6px;
+  margin-bottom: 8px;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.todo-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tag-badge {
+  display: inline-block;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  padding: 2px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.tag-badge:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
 .todo-meta {
   font-size: 12px;
   color: #888;
@@ -87,7 +123,8 @@
 }
 
 .edit-form input,
-.edit-form textarea {
+.edit-form textarea,
+.edit-form select {
   padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
@@ -103,6 +140,39 @@
   align-self: flex-end;
 }
 
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.form-column {
+  flex: 1;
+}
+
+.form-section {
+  margin-top: 10px;
+}
+
+.form-section label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.category-select-container,
+.date-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.category-select-container label,
+.date-input-container label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
 @media (max-width: 600px) {
   .todo-item {
     flex-direction: column;
@@ -115,5 +185,9 @@
   
   .todo-content {
     width: 100%;
+  }
+  
+  .form-row {
+    flex-direction: column;
   }
 }
