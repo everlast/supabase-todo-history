@@ -296,6 +296,16 @@ function TodoApp() {
     setShowNotifications(false);
   };
 
+  // 未完了タスクの数を計算する関数
+  const getIncompleteTodoCount = () => {
+    return todos.filter(todo => !todo.is_complete).length;
+  };
+
+  // 全ての未完了タスクの数を計算する関数
+  const getAllIncompleteTodoCount = () => {
+    return allTodos.filter(todo => !todo.is_complete).length;
+  };
+
   // ユーザーが未ログインの場合はメッセージを表示
   if (!user) {
     return (
@@ -334,71 +344,75 @@ function TodoApp() {
         />
       )}
       
-      <div className="tabs">
+      <div className="todo-tabs">
         <button 
-          className={activeTab === 'todos' ? 'active' : ''} 
+          className={`tab-button ${activeTab === 'todos' ? 'active' : ''}`}
           onClick={() => setActiveTab('todos')}
         >
           TODOリスト
         </button>
         <button 
-          className={activeTab === 'history' ? 'active' : ''} 
+          className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('history');
-            setSelectedTodoId(null);
+            handleShowAllHistory();
           }}
         >
           履歴
         </button>
       </div>
 
-      {loading ? (
-        <div className="loading">読み込み中...</div>
-      ) : (
-        <div className="tab-content">
-          {activeTab === 'todos' ? (
-            <>
-              {/* カテゴリ管理とフィルタリング */}
-              <div className="todo-filters">
-                <CategoryManager 
-                  onSelectCategory={handleSelectCategory} 
-                />
-                
-                {filterTag && (
-                  <div className="active-filters">
-                    <div className="filter-tag">
-                      <span>タグ: {filterTag}</span>
-                      <button onClick={() => setFilterTag(null)}>×</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <TodoForm 
-                onAddTodo={handleAddTodo} 
-                categories={categories}
-              />
-              <TodoList 
-                todos={todos}
-                categories={categories}
-                onToggleComplete={handleToggleComplete}
-                onDeleteTodo={handleDeleteTodo}
-                onEditTodo={handleEditTodo}
-                onViewHistory={handleViewHistory}
-                onAddTag={handleAddTag}
-                onRemoveTag={handleRemoveTag}
-                onFilterByTag={handleFilterByTag}
-              />
-            </>
-          ) : (
-            <TodoHistory 
-              history={history}
+      {activeTab === 'todos' ? (
+        <>
+          <div className="category-section">
+            <CategoryManager 
               categories={categories}
-              selectedTodoId={selectedTodoId}
-              onShowAllHistory={handleShowAllHistory}
+              selectedCategoryId={selectedCategoryId}
+              onSelectCategory={handleSelectCategory}
+            />
+            
+            {filterTag && (
+              <div className="active-filter">
+                <span>タグフィルター: </span>
+                <span className="filter-tag">{filterTag}</span>
+                <button onClick={() => setFilterTag(null)} className="clear-filter">
+                  ×
+                </button>
+              </div>
+            )}
+          </div>
+          
+          <TodoForm 
+            onAddTodo={handleAddTodo} 
+            categories={categories}
+          />
+          
+          {loading ? (
+            <div className="loading">読み込み中...</div>
+          ) : (
+            <TodoList 
+              todos={todos}
+              categories={categories}
+              onToggleComplete={handleToggleComplete}
+              onDeleteTodo={handleDeleteTodo}
+              onEditTodo={handleEditTodo}
+              onViewHistory={handleViewHistory}
+              onAddTag={handleAddTag}
+              onRemoveTag={handleRemoveTag}
+              onFilterByTag={handleFilterByTag}
+              incompleteTodoCount={getIncompleteTodoCount()}
+              totalIncompleteTodoCount={getAllIncompleteTodoCount()}
+              isFiltered={!!selectedCategoryId || !!filterTag}
             />
           )}
-        </div>
+        </>
+      ) : (
+        <TodoHistory 
+          history={history}
+          categories={categories}
+          selectedTodoId={selectedTodoId}
+          onShowAllHistory={handleShowAllHistory}
+        />
       )}
     </div>
   );

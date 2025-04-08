@@ -1,7 +1,46 @@
+/* コンテナ */
+.todo-list-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ステータスバー */
+.todo-status-bar {
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.incomplete-count {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.incomplete-count strong {
+  color: #007bff;
+  font-weight: 600;
+}
+
 /* リスト */
 .todo-list {
-  margin-top: 20px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
   gap: 15px;
+}
+
+/* 空の状態 */
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border: 1px dashed #ced4da;
 }
