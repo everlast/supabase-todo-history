@@ -23,3 +23,5 @@ function TodoList({ todos, onToggleComplete, onDeleteTodo, onEditTodo, onViewHis
     </div>
   );
 }
+
+export default TodoList;
