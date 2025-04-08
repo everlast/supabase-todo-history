@@ -3,15 +3,22 @@
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 
-SupabaseとReactを使用したTODOアプリケーションです。タスク管理と操作履歴の追跡機能を備えています。
+SupabaseとReactを使用したTODOアプリケーションです。タスク管理と操作履歴の追跡機能を備えています。ユーザー認証機能を実装しており、ユーザーごとのタスク管理が可能です。
 
 ## 機能
 
-- TODOタスクの作成、編集、削除
-- タスクの完了/未完了の切り替え
-- タスク操作の履歴追跡
-- 履歴の閲覧（全体または特定のタスク）
-- レスポンシブデザイン
+- **認証機能**
+  - メール/パスワードでのサインアップ、ログイン
+  - Google認証によるソーシャルログイン
+  - パスワードのリセットと更新
+  - ユーザーごとのデータ分離
+
+- **タスク管理**
+  - TODOタスクの作成、編集、削除
+  - タスクの完了/未完了の切り替え
+  - タスク操作の履歴追跡
+  - 履歴の閲覧（全体または特定のタスク）
+  - レスポンシブデザイン
 
 ## スクリーンショット
 
@@ -19,8 +26,8 @@ SupabaseとReactを使用したTODOアプリケーションです。タスク管
 
 ## 技術スタック
 
-- **フロントエンド**: React
-- **バックエンド**: Supabase（PostgreSQL）
+- **フロントエンド**: React、React Router
+- **バックエンド**: Supabase（PostgreSQL、認証API）
 - **ホスティング**: ※自由に選択可能
 
 ## インストール方法
@@ -59,12 +66,9 @@ CREATE TABLE todos (
   description TEXT,
   is_completed BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, now()),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, now())
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, now()),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL
 );
-
--- RLSポリシー
-ALTER TABLE todos ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "全ユーザーがtodosにアクセス可能" ON todos FOR ALL USING (true);
 ```
 
 #### todo_history テーブル
@@ -76,10 +80,6 @@ CREATE TABLE todo_history (
   details JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, now())
 );
-
--- RLSポリシー
-ALTER TABLE todo_history ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "全ユーザーがtodo_history" ON todo_history FOR ALL USING (true);
 ```
 
 ### 2. トリガー関数
@@ -153,6 +153,52 @@ FOR EACH ROW
 EXECUTE FUNCTION record_todo_history();
 ```
 
+### 3. Row Level Security (RLS) ポリシー
+
+```sql
+-- ユーザーは自分のTODOのみ選択可能
+CREATE POLICY "ユーザーは自分のTODOのみ選択可能" 
+ON todos FOR SELECT 
+USING (auth.uid() = user_id);
+
+-- ユーザーは自分のTODOのみ挿入可能
+CREATE POLICY "ユーザーは自分のTODOのみ挿入可能" 
+ON todos FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+
+-- ユーザーは自分のTODOのみ更新可能
+CREATE POLICY "ユーザーは自分のTODOのみ更新可能" 
+ON todos FOR UPDATE 
+USING (auth.uid() = user_id);
+
+-- ユーザーは自分のTODOのみ削除可能
+CREATE POLICY "ユーザーは自分のTODOのみ削除可能" 
+ON todos FOR DELETE 
+USING (auth.uid() = user_id);
+
+-- ユーザーは自分のTODOの履歴のみ選択可能
+CREATE POLICY "ユーザーは自分のTODOの履歴のみ選択可能" 
+ON todo_history FOR SELECT 
+USING (
+  EXISTS (
+    SELECT 1 FROM todos 
+    WHERE todos.id = todo_history.todo_id 
+    AND todos.user_id = auth.uid()
+  )
+);
+```
+
+## 認証機能の設定
+
+Supabaseの認証機能を使用するためには、以下の設定を行う必要があります：
+
+1. Supabaseダッシュボードで「Authentication」を選択
+2. メール認証を有効にする（デフォルトで有効）
+3. 必要に応じてGoogle認証を設定
+   - OAuth認証情報をGoogleデベロッパーコンソールで作成
+   - Client IDとClient Secretをダッシュボードに入力
+   - リダイレクトURLを設定
+
 ## 本番環境へのデプロイ
 
 1. ビルドの作成
@@ -165,12 +211,28 @@ npm run build
 
 ## 拡張アイデア
 
-- ユーザー認証
-- タスクのカテゴリ分類
-- タスクの期限日設定
-- チーム共有機能
-- プロジェクト管理機能
-- Supabase Realtimeを使用したリアルタイム更新
+- **認証機能の拡張**
+  - 追加のソーシャルログインプロバイダー (Facebook, Twitter, Githubなど)
+  - ユーザープロファイル管理
+
+- **チーム機能**
+  - タスクの共有とコラボレーション
+  - チームメンバー間の権限設定
+
+- **機能の拡張**
+  - タスクのカテゴリ分類やタグ付け
+  - 期限日設定と通知機能
+  - 優先度の設定
+  - ファイル添付機能
+
+- **UI/UX改善**
+  - ドラッグ&ドロップによる並べ替え
+  - タスクフィルタリング機能
+  - ダークモード対応
+
+- **リアルタイム更新**
+  - Supabase Realtimeを使用したリアルタイムデータ同期
+  - 複数デバイス間での即時反映
 
 ## 開発者
 
