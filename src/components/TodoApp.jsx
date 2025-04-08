@@ -4,6 +4,7 @@ import { TodoService } from '../services/TodoService';
 import TodoForm from './TodoForm';
 import TodoList from './TodoList';
 import TodoHistory from './TodoHistory';
+import TodoNotifications from './TodoNotifications';
 import '../styles/TodoApp.css';
 
 function TodoApp() {
@@ -13,6 +14,11 @@ function TodoApp() {
   const [history, setHistory] = useState([]);
   const [selectedTodoId, setSelectedTodoId] = useState(null);
   const [error, setError] = useState('');
+  const [notifications, setNotifications] = useState({
+    overdue: [],
+    dueSoon: []
+  });
+  const [showNotifications, setShowNotifications] = useState(false);
   
   // 認証コンテキストから現在のユーザーを取得
   const { user } = useAuth();
@@ -52,8 +58,42 @@ function TodoApp() {
     }
   }, [activeTab, selectedTodoId, user]);
 
+  // 通知の読み込み
+  useEffect(() => {
+    const loadNotifications = async () => {
+      if (!user) return;
+      
+      try {
+        // 期限切れのタスク
+        const overdueData = await TodoService.getOverdueTodos();
+        
+        // 期限が近いタスク
+        const dueSoonData = await TodoService.getDueSoonTodos();
+        
+        setNotifications({
+          overdue: overdueData,
+          dueSoon: dueSoonData
+        });
+        
+        // 通知があれば通知パネルを表示
+        if (overdueData.length > 0 || dueSoonData.length > 0) {
+          setShowNotifications(true);
+        }
+      } catch (error) {
+        console.error('通知の読み込み中にエラーが発生しました:', error);
+      }
+    };
+    
+    loadNotifications();
+    
+    // 1時間ごとに通知を更新
+    const notificationInterval = setInterval(loadNotifications, 60 * 60 * 1000);
+    
+    return () => clearInterval(notificationInterval);
+  }, [user, todos]);
+
   // 新しいTODOを追加
-  const handleAddTodo = async (title, description) => {
+  const handleAddTodo = async (title, description, dueDate) => {
     if (!user) {
       setError('タスクを追加するにはログインしてください');
       return;
@@ -61,7 +101,7 @@ function TodoApp() {
     
     try {
       setError('');
-      const newTodo = await TodoService.createTodo(title, description);
+      const newTodo = await TodoService.createTodo(title, description, dueDate);
       setTodos([newTodo, ...todos]);
     } catch (error) {
       console.error('TODOの追加中にエラーが発生しました:', error);
@@ -125,6 +165,26 @@ function TodoApp() {
     setSelectedTodoId(null);
   };
 
+  // 通知パネルを閉じる
+  const handleCloseNotifications = () => {
+    setShowNotifications(false);
+  };
+
+  // 通知クリックでTODOにフォーカス
+  const handleNotificationClick = (todoId) => {
+    // 対象のTODOが画面に表示されるようにスクロール
+    const todoElement = document.getElementById(`todo-${todoId}`);
+    if (todoElement) {
+      todoElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      todoElement.classList.add('highlight');
+      setTimeout(() => {
+        todoElement.classList.remove('highlight');
+      }, 2000);
+    }
+    
+    setShowNotifications(false);
+  };
+
   // ユーザーが未ログインの場合はメッセージを表示
   if (!user) {
     return (
@@ -136,11 +196,32 @@ function TodoApp() {
     );
   }
 
+  // 通知の合計数を計算
+  const notificationCount = notifications.overdue.length + notifications.dueSoon.length;
+
   return (
     <div className="todo-app">
-      <h2>TODOリスト</h2>
+      <h2>
+        TODOリスト
+        {notificationCount > 0 && (
+          <button 
+            className="notification-toggle"
+            onClick={() => setShowNotifications(!showNotifications)}
+          >
+            通知 <span className="notification-badge">{notificationCount}</span>
+          </button>
+        )}
+      </h2>
       
       {error && <div className="error-message">{error}</div>}
+      
+      {showNotifications && notificationCount > 0 && (
+        <TodoNotifications 
+          notifications={notifications} 
+          onClose={handleCloseNotifications}
+          onNotificationClick={handleNotificationClick}
+        />
+      )}
       
       <div className="tabs">
         <button 
