@@ -62,6 +62,39 @@ h2 {
   margin-top: 20px;
 }
 
+/* フィルター関連 */
+.todo-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.filter-tag button {
+  margin-left: 8px;
+  background: none;
+  border: none;
+  color: var(--danger-color);
+  font-weight: bold;
+  cursor: pointer;
+}
+
 /* 空の状態 */
 .empty-state {
   text-align: center;
