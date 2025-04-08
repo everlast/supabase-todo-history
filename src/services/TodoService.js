@@ -19,6 +19,27 @@ export class TodoService {
     return data || [];
   }
 
+  // TODOを1件取得
+  static async getTodoById(id) {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error('ログインが必要です');
+    
+    const { data, error } = await supabase
+      .from('todos')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single();
+
+    if (error) {
+      console.error('TODOの取得中にエラーが発生しました:', error);
+      throw error;
+    }
+    
+    return { data };
+  }
+
   // 期限日が近いTODOを取得（通知機能用）
   static async getDueSoonTodos() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -78,7 +99,7 @@ export class TodoService {
   }
 
   // 新しいTODOを作成
-  static async createTodo(title, description = '', dueDate = null) {
+  static async createTodo(title, description = '', categoryId = null, tags = []) {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) throw new Error('ログインが必要です');
@@ -88,7 +109,8 @@ export class TodoService {
       .insert([{ 
         title, 
         description,
-        due_date: dueDate,
+        category_id: categoryId,
+        tags,
         user_id: user.id 
       }])
       .select();
@@ -198,5 +220,84 @@ export class TodoService {
     }
     
     return data || [];
+  }
+
+  // カテゴリでTODOをフィルタリング
+  static async getTodosByCategory(categoryId) {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error('ログインが必要です');
+    
+    const { data, error } = await supabase
+      .from('todos')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('category_id', categoryId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('TODOの取得中にエラーが発生しました:', error);
+      throw error;
+    }
+    
+    return data || [];
+  }
+
+  // タグでTODOをフィルタリング
+  static async getTodosByTag(tag) {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) throw new Error('ログインが必要です');
+    
+    const { data, error } = await supabase
+      .from('todos')
+      .select('*')
+      .eq('user_id', user.id)
+      .contains('tags', [tag])
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('TODOの取得中にエラーが発生しました:', error);
+      throw error;
+    }
+    
+    return data || [];
+  }
+
+  // タグを追加
+  static async addTagToTodo(todoId, tag) {
+    const { data: todo } = await this.getTodoById(todoId);
+    
+    if (!todo) throw new Error('TODOが見つかりません');
+    
+    // 現在のタグリストを取得
+    const currentTags = todo.tags || [];
+    
+    // タグが既に存在しなければ追加
+    if (!currentTags.includes(tag)) {
+      const updatedTags = [...currentTags, tag];
+      return await this.updateTodo(todoId, { tags: updatedTags });
+    }
+    
+    return todo;
+  }
+
+  // タグを削除
+  static async removeTagFromTodo(todoId, tag) {
+    const { data: todo } = await this.getTodoById(todoId);
+    
+    if (!todo) throw new Error('TODOが見つかりません');
+    
+    // 現在のタグリストを取得
+    const currentTags = todo.tags || [];
+    
+    // タグを削除
+    const updatedTags = currentTags.filter(t => t !== tag);
+    return await this.updateTodo(todoId, { tags: updatedTags });
+  }
+
+  // TODOのカテゴリを設定
+  static async setTodoCategory(todoId, categoryId) {
+    return await this.updateTodo(todoId, { category_id: categoryId });
   }
 }
