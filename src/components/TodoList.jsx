@@ -9,18 +9,17 @@ function TodoList({ todos, onToggleComplete, onDeleteTodo, onEditTodo, onViewHis
         <div className="empty-state">TODOがありません。新しいタスクを追加してください。</div>
       ) : (
         todos.map(todo => (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            onToggleComplete={onToggleComplete}
-            onDeleteTodo={onDeleteTodo}
-            onEditTodo={onEditTodo}
-            onViewHistory={onViewHistory}
-          />
+          <div id={`todo-${todo.id}`} key={todo.id}>
+            <TodoItem
+              todo={todo}
+              onToggleComplete={onToggleComplete}
+              onDeleteTodo={onDeleteTodo}
+              onEditTodo={onEditTodo}
+              onViewHistory={onViewHistory}
+            />
+          </div>
         ))
       )}
     </div>
   );
 }
-
-export default TodoList;
