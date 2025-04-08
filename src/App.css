@@ -1,0 +1,7 @@
+/* App.cssはindex.cssに統合され、空ファイルとなっています。
+   スタイルを追加したい場合はこのファイルを使用してください。 */
+.App {
+  text-align: center;
+  max-width: 100%;
+  overflow-x: hidden;
+}
