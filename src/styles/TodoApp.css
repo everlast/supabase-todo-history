@@ -1,0 +1,87 @@
+:root {
+  --primary-color: #3498db;
+  --primary-light: #ebf5fb;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --danger-color: #e74c3c;
+  --text-color: #333;
+  --bg-color: #f9f9f9;
+  --border-color: #ddd;
+  --completed-text-color: #777;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.todo-app {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: white;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--primary-color);
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* タブ */
+.tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tabs button {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 3px solid transparent;
+}
+
+.tabs button.active {
+  border-bottom: 3px solid var(--primary-color);
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.tab-content {
+  margin-top: 20px;
+}
+
+/* 空の状態 */
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: #888;
+  font-style: italic;
+}
+
+/* ローディング */
+.loading {
+  text-align: center;
+  padding: 30px;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 600px) {
+  .todo-app {
+    margin: 20px 10px;
+    padding: 15px;
+  }
+}
