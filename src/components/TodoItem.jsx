@@ -47,6 +47,37 @@ function TodoItem({
     });
   };
 
+  // 期限までの残り日数を計算
+  const getDaysRemaining = (dateString) => {
+    if (!dateString) return null;
+    
+    const dueDate = new Date(dateString);
+    dueDate.setHours(0, 0, 0, 0);
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const diffTime = dueDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  };
+
+  // 期限までの日数のテキストを生成
+  const getRemainingDaysText = (dateString) => {
+    const days = getDaysRemaining(dateString);
+    
+    if (days === null) return null;
+    
+    if (days < 0) {
+      return <span className="overdue-text">期限超過</span>;
+    } else if (days === 0) {
+      return "今日まで";
+    } else {
+      return `あと ${days} 日`;
+    }
+  };
+
   // 期限日が近いか過ぎているかを確認
   const getDueDateStatus = () => {
     if (!todo.due_date) return null;
@@ -220,6 +251,11 @@ function TodoItem({
                 {todo.due_date && (
                   <span className={`due-date ${dueDateStatus}`}>
                     期限: {formatDueDate(todo.due_date)}
+                    {getDaysRemaining(todo.due_date) !== null && (
+                      <span className="days-remaining">
+                        {getRemainingDaysText(todo.due_date)}
+                      </span>
+                    )}
                   </span>
                 )}
               </div>

@@ -85,6 +85,26 @@
   border-left: 3px solid var(--warning-color);
 }
 
+/* 期限切れのタスク */
+.notification-section li.overdue-item {
+  border-left: 6px solid var(--danger-color);
+  background-color: #fff5f5;
+}
+
+.notification-section li.overdue-item:hover {
+  background-color: #ffe6e6;
+}
+
+/* 期限が当日または前日のタスク */
+.notification-section li.urgent-item {
+  border-left: 6px solid #ff3333;
+  background-color: #fff5f5;
+}
+
+.notification-section li.urgent-item:hover {
+  background-color: #ffe6e6;
+}
+
 .notification-section .todo-title {
   font-weight: 500;
   flex: 1;
@@ -94,6 +114,19 @@
   font-size: 12px;
   color: #666;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.urgent-label {
+  display: inline-block;
+  background-color: #ff3333;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-weight: bold;
 }
 
 .notifications-footer {

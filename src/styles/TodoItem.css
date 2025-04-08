@@ -24,6 +24,16 @@
   text-decoration: line-through;
 }
 
+/* 期限が過ぎているタスク */
+.todo-item.due-overdue {
+  border-left: 4px solid var(--danger-color);
+}
+
+/* 期限が近いタスク */
+.todo-item.due-soon {
+  border-left: 4px solid var(--warning-color);
+}
+
 .todo-content {
   display: flex;
   gap: 15px;
@@ -92,6 +102,42 @@
   display: flex;
   gap: 15px;
   margin-top: 10px;
+}
+
+/* 期限表示のスタイル */
+.due-date {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.due-date.overdue {
+  color: var(--danger-color);
+  font-weight: 500;
+}
+
+.due-date.soon {
+  color: var(--warning-color);
+  font-weight: 500;
+}
+
+.days-remaining {
+  font-weight: 500;
+  white-space: nowrap;
+  background-color: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.overdue-text {
+  color: white;
+  background-color: var(--danger-color);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: bold;
+  font-size: 11px;
 }
 
 .actions {
@@ -173,6 +219,7 @@
   font-weight: 500;
 }
 
+/* レスポンシブ対応 */
 @media (max-width: 600px) {
   .todo-item {
     flex-direction: column;
@@ -189,5 +236,11 @@
   
   .form-row {
     flex-direction: column;
+  }
+  
+  .due-date {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
   }
 }
