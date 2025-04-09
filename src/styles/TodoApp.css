@@ -20,7 +20,7 @@ body.light {
 body.dark {
   --bg-color: #333;
   --text-color: #f9f9f9;
-  --primary-color: #9b59b6;
+  --primary-color: #555;
 }
 
 .todo-app {
@@ -137,8 +137,8 @@ h2 {
 .notification-toggle {
   display: inline-flex;
   align-items: center;
-  background-color: var(--primary-color);
-  color: var(--text-color);
+  background-color: #555;
+  color: #eee;
   border: none;
   border-radius: 4px;
   padding: 5px 10px;
@@ -149,7 +149,7 @@ h2 {
 }
 
 .notification-toggle:hover {
-  background-color: #2980b9;
+  background-color: #666;
 }
 
 .notification-badge {
@@ -208,4 +208,18 @@ h2 {
 
 .category-item {
   color: #999;
+}
+
+.app-header {
+  background-color: #444;
+  color: #eee;
+}
+
+.button, .notification-toggle {
+  background-color: #555;
+  color: #eee;
+}
+
+.button:hover, .notification-toggle:hover {
+  background-color: #666;
 }
