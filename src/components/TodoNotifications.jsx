@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/TodoNotifications.css';
 
-function TodoNotifications({ notifications, onClose, onNotificationClick }) {
+function TodoNotifications({ notifications, onClose, onNotificationClick, theme }) {
   const { overdue, dueSoon } = notifications;
   
   // 期限日の表示をフォーマット
@@ -45,7 +45,7 @@ function TodoNotifications({ notifications, onClose, onNotificationClick }) {
   };
 
   return (
-    <div className="todo-notifications">
+    <div className={`todo-notifications ${theme}`}>
       <div className="notifications-header">
         <h3>タスク通知</h3>
         <button className="close-btn" onClick={onClose}>×</button>
