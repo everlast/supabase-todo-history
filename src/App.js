@@ -5,14 +5,23 @@ import Header from './components/common/Header';
 import TodoApp from './components/TodoApp';
 import AuthContainer from './components/auth/AuthContainer';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import ToggleSwitch from './components/ToggleSwitch';
 import './App.css';
 
 function App() {
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
+
+  const handleToggle = () => {
+    setIsDarkMode(!isDarkMode);
+    // ダークモードのスタイルを適用するロジックをここに追加
+  };
+
   return (
     <AuthProvider>
       <Router>
         <div className="App">
           <Header />
+          <ToggleSwitch isOn={isDarkMode} handleToggle={handleToggle} />
           <div className="app-container">
             <Routes>
               {/* トップページ (ログイン済みならTODOアプリにリダイレクト、未ログインならログインページへ) */}
