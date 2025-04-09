@@ -21,7 +21,6 @@ function App() {
       <Router>
         <div className="App">
           <Header />
-          <ToggleSwitch isOn={isDarkMode} handleToggle={handleToggle} />
           <div className="app-container">
             <Routes>
               {/* トップページ (ログイン済みならTODOアプリにリダイレクト、未ログインならログインページへ) */}
