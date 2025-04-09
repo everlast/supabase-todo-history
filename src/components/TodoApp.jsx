@@ -8,6 +8,8 @@ import TodoHistory from './TodoHistory';
 import TodoNotifications from './TodoNotifications';
 import CategoryManager from './CategoryManager';
 import '../styles/TodoApp.css';
+import Switch from '@mui/material/Switch';
+import Button from '@mui/material/Button';
 
 function TodoApp() {
   const [todos, setTodos] = useState([]);
@@ -340,16 +342,20 @@ function TodoApp() {
       <h2>
         TODOリスト
         {notificationCount > 0 && (
-          <button 
+          <Button 
+            variant="contained"
+            color="primary"
             className="notification-toggle"
             onClick={() => setShowNotifications(!showNotifications)}
           >
             通知 <span className="notification-badge">{notificationCount}</span>
-          </button>
+          </Button>
         )}
-        <button onClick={toggleTheme} className="theme-toggle">
-          {theme === 'light' ? 'ダークモード' : 'ライトモード'}
-        </button>
+        <Switch
+          checked={theme === 'dark'}
+          onChange={toggleTheme}
+          inputProps={{ 'aria-label': 'theme toggle' }}
+        />
       </h2>
       
       {error && <div className="error-message">{error}</div>}
@@ -364,13 +370,15 @@ function TodoApp() {
       )}
       
       <div className="todo-tabs">
-        <button 
+        <Button 
+          variant="outlined"
           className={`tab-button ${activeTab === 'todos' ? 'active' : ''}`}
           onClick={() => setActiveTab('todos')}
         >
           TODOリスト
-        </button>
-        <button 
+        </Button>
+        <Button 
+          variant="outlined"
           className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('history');
@@ -378,7 +386,7 @@ function TodoApp() {
           }}
         >
           履歴
-        </button>
+        </Button>
       </div>
 
       {activeTab === 'todos' ? (
@@ -394,9 +402,9 @@ function TodoApp() {
               <div className="active-filter">
                 <span>タグフィルター: </span>
                 <span className="filter-tag">{filterTag}</span>
-                <button onClick={() => setFilterTag(null)} className="clear-filter">
+                <Button onClick={() => setFilterTag(null)} className="clear-filter">
                   ×
-                </button>
+                </Button>
               </div>
             )}
           </div>
