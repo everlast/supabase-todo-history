@@ -201,3 +201,7 @@ h2 {
 .notification-section h4 {
   color: #ddd;
 }
+
+.todo-notifications li {
+  color: #999;
+}
