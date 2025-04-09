@@ -25,6 +25,7 @@ function TodoApp() {
   const [categories, setCategories] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [filterTag, setFilterTag] = useState(null);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
   
   // 認証コンテキストから現在のユーザーを取得
   const { user } = useAuth();
@@ -120,6 +121,15 @@ function TodoApp() {
     
     return () => clearInterval(notificationInterval);
   }, [user, allTodos]);
+
+  useEffect(() => {
+    document.body.className = theme;
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
 
   // 新しいTODOを追加
   const handleAddTodo = async (title, description, dueDate, categoryId, tags = []) => {
@@ -337,6 +347,9 @@ function TodoApp() {
             通知 <span className="notification-badge">{notificationCount}</span>
           </button>
         )}
+        <button onClick={toggleTheme} className="theme-toggle">
+          {theme === 'light' ? 'ダークモード' : 'ライトモード'}
+        </button>
       </h2>
       
       {error && <div className="error-message">{error}</div>}
