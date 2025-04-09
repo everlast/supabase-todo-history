@@ -223,3 +223,8 @@ h2 {
 .button:hover, .notification-toggle:hover {
   background-color: #666;
 }
+
+.todo-notifications.light {
+  background-color: #f9f9f9;
+  color: #333;
+}
