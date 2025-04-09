@@ -359,6 +359,7 @@ function TodoApp() {
           notifications={notifications} 
           onClose={handleCloseNotifications}
           onNotificationClick={handleNotificationClick}
+          theme={theme}
         />
       )}
       
