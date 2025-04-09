@@ -69,6 +69,7 @@
 .todo-title {
   font-weight: bold;
   flex: 1;
+  color: #555;
 }
 
 .date {

@@ -108,6 +108,7 @@
 .notification-section .todo-title {
   font-weight: 500;
   flex: 1;
+  color: #555;
 }
 
 .notification-section .due-date {
