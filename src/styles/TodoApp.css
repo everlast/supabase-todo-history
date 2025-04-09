@@ -183,3 +183,21 @@ h2 {
     align-self: flex-start;
   }
 }
+
+.todo-text h3 {
+  color: #999;
+}
+
+.todo-category .category-badge {
+  background-color: #444;
+  color: #fff;
+}
+
+.todo-notifications {
+  background-color: #222;
+  color: #eee;
+}
+
+.notification-section h4 {
+  color: #ddd;
+}
